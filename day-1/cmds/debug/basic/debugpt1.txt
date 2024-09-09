@@ -1,0 +1,269 @@
+(dlv) help
+The following commands are available:
+
+Running the program:
+    call -------------------------------- Resumes process, injecting a function call (EXPERIMENTAL!!!)
+    continue (alias: c) ----------------- Run until breakpoint or program termination.
+    next (alias: n) --------------------- Step over to next source line.
+    next-instruction (alias: ni | nexti)  Single step a single cpu instruction, skipping function calls.
+    rebuild ----------------------------- Rebuild the target executable and restarts it. It does not work if the executable was not built by delve.
+    restart (alias: r) ------------------ Restart process.
+    step (alias: s) --------------------- Single step through program.
+    step-instruction (alias: si | stepi)  Single step a single cpu instruction.
+    stepout (alias: so) ----------------- Step out of the current function.
+
+Manipulating breakpoints:
+    break (alias: b) ------- Sets a breakpoint.
+    breakpoints (alias: bp)  Print out info for active breakpoints.
+    clear ------------------ Deletes breakpoint.
+    clearall --------------- Deletes multiple breakpoints.
+    condition (alias: cond)  Set breakpoint condition.
+    on --------------------- Executes a command when a breakpoint is hit.
+    toggle ----------------- Toggles on or off a breakpoint.
+    trace (alias: t) ------- Set tracepoint.
+    watch ------------------ Set watchpoint.
+
+Viewing program variables and memory:
+    args ----------------- Print function arguments.
+    display -------------- Print value of an expression every time the program stops.
+    examinemem (alias: x)  Examine raw memory at the given address.
+    locals --------------- Print local variables.
+    print (alias: p) ----- Evaluate an expression.
+    regs ----------------- Print contents of CPU registers.
+    set ------------------ Changes the value of a variable.
+    vars ----------------- Print package variables.
+    whatis --------------- Prints type of an expression.
+
+Listing and switching between threads and goroutines:
+    goroutine (alias: gr) -- Shows or changes current goroutine
+    goroutines (alias: grs)  List program goroutines.
+    thread (alias: tr) ----- Switch to the specified thread.
+    threads ---------------- Print out info for every traced thread.
+
+Viewing the call stack and selecting frames:
+    deferred --------- Executes command in the context of a deferred call.
+    down ------------- Move the current frame down.
+    frame ------------ Set the current frame, or execute command on a different frame.
+    stack (alias: bt)  Print stack trace.
+    up --------------- Move the current frame up.
+
+Other commands:
+    config --------------------- Changes configuration parameters.
+    disassemble (alias: disass)  Disassembler.
+    dump ----------------------- Creates a core dump from the current process state
+    edit (alias: ed) ----------- Open where you are in $DELVE_EDITOR or $EDITOR
+    exit (alias: quit | q) ----- Exit the debugger.
+    funcs ---------------------- Print list of functions.
+    help (alias: h) ------------ Prints the help message.
+    libraries ------------------ List loaded dynamic libraries
+    list (alias: ls | l) ------- Show source code.
+    packages ------------------- Print list of packages.
+    source --------------------- Executes a file containing a list of delve commands
+    sources -------------------- Print list of source files.
+    target --------------------- Manages child process debugging.
+    transcript ----------------- Appends command output to a file.
+    types ---------------------- Print list of types
+
+Type help followed by a command for full documentation.
+(dlv) list
+Stopped at: 0x1ebb0010
+=>   1:	no source available
+(dlv) continue
+> [unrecovered-panic] runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (hits goroutine(1):1 total:1) (PC: 0xeeb2984)
+Warning: debugging optimized function
+	runtime.curg._panic.arg: interface {}(string) "runtime error: index out of range [1] with length 1"
+  1258:	// fatalpanic implements an unrecoverable panic. It is like fatalthrow, except
+  1259:	// that if msgs != nil, fatalpanic also prints panic messages and decrements
+  1260:	// runningPanicDefers once main is blocked from exiting.
+  1261:	//
+  1262:	//go:nosplit
+=>1263:	func fatalpanic(msgs *_panic) {
+  1264:		pc := getcallerpc()
+  1265:		sp := getcallersp()
+  1266:		gp := getg()
+  1267:		var docrash bool
+  1268:		// Switch to the system stack to avoid any stack growth, which
+(dlv) stack
+0  0x000000000eeb2984 in [1mruntime.fatalpanic[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:1263[0m
+1  0x000000000eee79af in [1mruntime.gopanic[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:804[0m
+2  0x000000000eeb0bf4 in [1mruntime.goPanicIndex[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:115[0m
+3  0x000000000ef41e51 in [1mmain.main[0m
+   at ./[1mlast-character.go:16[0m
+4  0x000000000eeb5707 in [1mruntime.main[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mproc.go:272[0m
+5  0x000000000eeee881 in [1mruntime.goexit[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1masm_amd64.s:1700[0m
+(dlv) restart
+Process restarted with PID 27118
+(dlv) list
+Stopped at: 0x1f939010
+=>   1:	no source available
+(dlv) break ./last-character.go:16
+Breakpoint 1 set at 0x1005ad4d for main.main() ./last-character.go:16
+(dlv) breakpoints
+Breakpoint runtime-fatal-throw (enabled) at 0x10000c24,0xffcb4a4,0xffe29ce for (multiple functions)() <multiple locations>:0 (0)
+Breakpoint unrecovered-panic (enabled) at 0xffcb984 for runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (0)
+	print runtime.curg._panic.arg
+Breakpoint 1 (enabled) at 0x1005ad4d for main.main() ./last-character.go:16 (0)
+(dlv) help breakpoints
+Print out info for active breakpoints.
+	
+	breakpoints [-a]
+
+Specifying -a prints all physical breakpoint, including internal breakpoints.
+(dlv) breakpoints -a
+Breakpoint runtime-fatal-throw (enabled) at 0x10000c24 for (multiple functions)() <multiple locations>:0 (0)
+	OriginalData=
+	User Cond="" HitCond=<nil>
+Breakpoint runtime-fatal-throw (enabled) at 0xffcb4a4 for (multiple functions)() <multiple locations>:0 (0)
+	OriginalData=
+	User Cond="" HitCond=<nil>
+Breakpoint runtime-fatal-throw (enabled) at 0xffe29ce for runtime.fatalsignal() <multiple locations>:0 (0)
+	OriginalData=
+	User Cond="" HitCond=<nil>
+Breakpoint unrecovered-panic (enabled) at 0xffcb984 for runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (0)
+	print runtime.curg._panic.arg
+	OriginalData=
+	User Cond="" HitCond=<nil>
+Breakpoint 1 (enabled) at 0x1005ad4d for main.main() ./last-character.go:16 (0)
+	OriginalData=
+	User Cond="" HitCond=<nil>
+(dlv) continue
+> [Breakpoint 1] main.main() ./last-character.go:16 (hits goroutine(1):1 total:1) (PC: 0x1005ad4d)
+    11:		// if len(os.Args) < 2 {
+    12:		// 	fmt.Println("You must supply an argument to this program")
+    13:		// 	os.Exit(1)
+    14:		// }
+    15:	
+=>  16:		arg := os.Args[1]
+    17:	
+    18:		fmt.Printf("The last character in that word is: %c\n", arg[len(arg)-1])
+    19:	}
+(dlv) print os.Args
+[]string len: 1, cap: 1, [
+	"/Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/day-1/c...+37 more",
+]
+(dlv) print os.Args[0]
+"/Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/day-1/c...+37 more"
+(dlv) print os.Args[1]
+(dlv) rebuild
+(dlv) breakpoints
+Breakpoint runtime-fatal-throw (enabled) at 0xc5bfc24,0xc58a4a4,0xc5a19ce for (multiple functions)() <multiple locations>:0 (0)
+Breakpoint unrecovered-panic (enabled) at 0xc58a984 for runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (0)
+	print runtime.curg._panic.arg
+Breakpoint 1 (enabled) at 0xc61a033 for main.main() ./last-character.go:16 (0)
+(dlv) continue
+(dlv) break main.main
+Breakpoint 2 set at 0x0 for main.main() ./last-character.go:8
+(dlv) restart
+Process restarted with PID 47306
+(dlv) clearall
+Breakpoint 1 cleared at 0xa1ae033 for main.main() ./last-character.go:16
+Breakpoint 2 cleared at 0xa1adf13 for main.main() ./last-character.go:8
+(dlv) continue
+(dlv) rebuild
+(dlv) restart "debugging is so fun!"
+Process restarted with PID 48487
+(dlv) continue main.main
+Breakpoint 3 set at 0x1f38f93 for main.main() ./last-character.go:8
+> [Breakpoint 3] main.main() ./last-character.go:8 (hits goroutine(1):1 total:1) (PC: 0x1f38f93)
+     3:	import (
+     4:		"fmt"
+     5:		"os"
+     6:	)
+     7:	
+=>   8:	func main() {
+     9:		fmt.Println("Hello Gophers! Pass me a word and I will print the last character!")
+    10:	
+    11:		if len(os.Args) < 2 {
+    12:			fmt.Println("You must supply an argument to this program")
+    13:			os.Exit(1)
+(dlv) next
+> main.main() ./last-character.go:9 (PC: 0x1f38f97)
+     4:		"fmt"
+     5:		"os"
+     6:	)
+     7:	
+     8:	func main() {
+=>   9:		fmt.Println("Hello Gophers! Pass me a word and I will print the last character!")
+    10:	
+    11:		if len(os.Args) < 2 {
+    12:			fmt.Println("You must supply an argument to this program")
+    13:			os.Exit(1)
+    14:		}
+(dlv) next
+> main.main() ./last-character.go:11 (PC: 0x1f38ffa)
+     6:	)
+     7:	
+     8:	func main() {
+     9:		fmt.Println("Hello Gophers! Pass me a word and I will print the last character!")
+    10:	
+=>  11:		if len(os.Args) < 2 {
+    12:			fmt.Println("You must supply an argument to this program")
+    13:			os.Exit(1)
+    14:		}
+    15:	
+    16:		arg := os.Args[1]
+(dlv) print os.Args
+[]string len: 2, cap: 2, [
+	"/Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/day-1/c...+37 more",
+	"debugging is so fun!",
+]
+(dlv) continue
+> [unrecovered-panic] runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (hits goroutine(1):1 total:1) (PC: 0x1eab984)
+Warning: debugging optimized function
+	runtime.curg._panic.arg: interface {}(string) "runtime error: index out of range [20] with length 20"
+  1258:	// fatalpanic implements an unrecoverable panic. It is like fatalthrow, except
+  1259:	// that if msgs != nil, fatalpanic also prints panic messages and decrements
+  1260:	// runningPanicDefers once main is blocked from exiting.
+  1261:	//
+  1262:	//go:nosplit
+=>1263:	func fatalpanic(msgs *_panic) {
+  1264:		pc := getcallerpc()
+  1265:		sp := getcallersp()
+  1266:		gp := getg()
+  1267:		var docrash bool
+  1268:		// Switch to the system stack to avoid any stack growth, which
+(dlv) stack
+0  0x0000000001eab984 in [1mruntime.fatalpanic[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:1263[0m
+1  0x0000000001ee09af in [1mruntime.gopanic[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:804[0m
+2  0x0000000001ea9bf4 in [1mruntime.goPanicIndex[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:115[0m
+3  0x0000000001f390b3 in [1mmain.main[0m
+   at ./[1mlast-character.go:18[0m
+4  0x0000000001eae707 in [1mruntime.main[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mproc.go:272[0m
+5  0x0000000001ee7901 in [1mruntime.goexit[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1masm_amd64.s:1700[0m
+(dlv) breakpoint ./last-character.go:18
+(dlv) break ./last-character.go:18
+Breakpoint 4 set at 0x1f390a4 for main.main() ./last-character.go:18
+(dlv) restart
+Process restarted with PID 50833
+(dlv) continue
+> [Breakpoint 4] main.main() ./last-character.go:18 (hits goroutine(1):1 total:1) (PC: 0x1faa0a4)
+    13:			os.Exit(1)
+    14:		}
+    15:	
+    16:		arg := os.Args[1]
+    17:	
+=>  18:		fmt.Printf("The last character in that word is: %c\n", arg[len(arg)])
+    19:	}
+(dlv) rebuild
+(dlv) continue
+Switch target process from 50833 to 51446 (/Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/day-1/cmds/debug/basic/__debug_bin1042016778 debugging is so fun!)
+> [Breakpoint 4] main.main() ./last-character.go:18 (hits goroutine(1):1 total:1) (PC: 0x61c505e)
+    13:			os.Exit(1)
+    14:		}
+    15:	
+    16:		arg := os.Args[1]
+    17:	
+=>  18:		fmt.Printf("The last character in that word is: %c\n", arg[len(arg)-1])
+    19:	}
+(dlv) continue
+(dlv) exit
