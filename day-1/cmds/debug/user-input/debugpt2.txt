@@ -1,0 +1,125 @@
+(dlv) continue
+> [unrecovered-panic] runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (hits goroutine(1):1 total:1) (PC: 0x9de6be4)
+Warning: debugging optimized function
+	runtime.curg._panic.arg: interface {}(string) "Invalid response received: -1\n"
+  1258:	// fatalpanic implements an unrecoverable panic. It is like fatalthrow, except
+  1259:	// that if msgs != nil, fatalpanic also prints panic messages and decrements
+  1260:	// runningPanicDefers once main is blocked from exiting.
+  1261:	//
+  1262:	//go:nosplit
+=>1263:	func fatalpanic(msgs *_panic) {
+  1264:		pc := getcallerpc()
+  1265:		sp := getcallersp()
+  1266:		gp := getg()
+  1267:		var docrash bool
+  1268:		// Switch to the system stack to avoid any stack growth, which
+(dlv) stack
+0  0x0000000009de6be4 in [1mruntime.fatalpanic[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:1263[0m
+1  0x0000000009e1bcef in [1mruntime.gopanic[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:804[0m
+2  0x0000000009e89f11 in [1mmain.gatherSentiment[0m
+   at ./[1mmain.go:38[0m
+3  0x0000000009e899b4 in [1mmain.main[0m
+   at ./[1mmain.go:9[0m
+4  0x0000000009de9967 in [1mruntime.main[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mproc.go:272[0m
+5  0x0000000009e22bc1 in [1mruntime.goexit[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1masm_amd64.s:1700[0m
+(dlv) break ./main.go:38
+Breakpoint 1 set at 0x9e89e4d for main.gatherSentiment() ./main.go:38
+(dlv) restart
+Process restarted with PID 22232
+(dlv) continue
+> [Breakpoint 1] main.gatherSentiment() ./main.go:38 (hits goroutine(1):1 total:1) (PC: 0xf49ce4d)
+    33:		case i > 2 && i < 7:
+    34:			fmt.Println("Guess it's going alright... :-|")
+    35:		case i > 6 && i < 11:
+    36:			fmt.Println("Guess it's going GREAT!!! :-D")
+    37:		default:
+=>  38:			panic(fmt.Sprintf("Invalid response received: %d\n", i))
+    39:		}
+    40:	}
+    41:	
+    42:	func withinBounds(n *int) bool {
+    43:		*n -= 10
+(dlv) list -15
+Showing /Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/day-1/cmds/debug/user-input/main.go:23 (PC: 0xf49cf39)
+    18:		fmt.Println("How would you rate the class from 1-10:")
+    19:	
+    20:		var i int
+    21:		_, err := fmt.Scanln(&i)
+    22:		if err != nil {
+    23:			panic(err)
+    24:		}
+    25:	
+    26:		if !withinBounds(&i) {
+    27:			panic("user input not within expected bounds")
+    28:		}
+(dlv) print i
+-1
+(dlv) list -15
+Showing /Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/day-1/cmds/debug/user-input/main.go:23 (PC: 0xf49cf39)
+    18:		fmt.Println("How would you rate the class from 1-10:")
+    19:	
+    20:		var i int
+    21:		_, err := fmt.Scanln(&i)
+    22:		if err != nil {
+    23:			panic(err)
+    24:		}
+    25:	
+    26:		if !withinBounds(&i) {
+    27:			panic("user input not within expected bounds")
+    28:		}
+(dlv) break ./main.go:21
+Breakpoint 2 set at 0xf49cb2e for main.gatherSentiment() ./main.go:21
+(dlv) restart
+Process restarted with PID 24888
+(dlv) c
+> [Breakpoint 2] main.gatherSentiment() ./main.go:21 (hits goroutine(1):1 total:1) (PC: 0xf54bb2e)
+    16:	
+    17:	func gatherSentiment() {
+    18:		fmt.Println("How would you rate the class from 1-10:")
+    19:	
+    20:		var i int
+=>  21:		_, err := fmt.Scanln(&i)
+    22:		if err != nil {
+    23:			panic(err)
+    24:		}
+    25:	
+    26:		if !withinBounds(&i) {
+(dlv) next
+> main.gatherSentiment() ./main.go:22 (PC: 0xf54bc03)
+    17:	func gatherSentiment() {
+    18:		fmt.Println("How would you rate the class from 1-10:")
+    19:	
+    20:		var i int
+    21:		_, err := fmt.Scanln(&i)
+=>  22:		if err != nil {
+    23:			panic(err)
+    24:		}
+    25:	
+    26:		if !withinBounds(&i) {
+    27:			panic("user input not within expected bounds")
+(dlv) print i
+9
+(dlv) watch -w i
+Watchpoint i set at 0xc00011a030
+(dlv) continue
+> watchpoint on [i] main.withinBounds() ./main.go:44 (hits goroutine(1):1 total:1) (PC: 0xf54bfca)
+    39:		}
+    40:	}
+    41:	
+    42:	func withinBounds(n *int) bool {
+    43:		*n -= 10
+=>  44:		return *n <= 0
+    45:	}
+(dlv) breakpoints
+Breakpoint runtime-fatal-throw (enabled) at 0xf4ddf64,0xf4bfc2e,0xf4a8704 for (multiple functions)() <multiple locations>:0 (0)
+Breakpoint unrecovered-panic (enabled) at 0xf4a8be4 for runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (0)
+	print runtime.curg._panic.arg
+Breakpoint 1 (enabled) at 0xf54be4d for main.gatherSentiment() ./main.go:38 (0)
+Breakpoint 2 (enabled) at 0xf54bb2e for main.gatherSentiment() ./main.go:21 (1)
+Watchpoint i (enabled) at 0xc00011a030 (1)
+(dlv) toggle i
+(dlv) exit

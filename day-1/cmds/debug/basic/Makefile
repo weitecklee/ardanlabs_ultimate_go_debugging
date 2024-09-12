@@ -10,9 +10,9 @@ install-delve:
 debug:
 	dlv debug
 
-# .PHONY: debug-with-arg
-# debug-with-arg:
-# 	dlv debug -- "foobar"
+.PHONY: debug-with-arg
+debug-with-arg:
+	dlv debug -- "foobar"
 
 # bin/basic:
 # 	go build -gcflags="all=-N -l" -o bin/basic last-character.go
