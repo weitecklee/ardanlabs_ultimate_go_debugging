@@ -1,0 +1,76 @@
+(dlv) disassemble -l main.main
+TEXT main.main(SB) /Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/day-1/cmds/exec/main.go
+	main.go:22	0xcecdd80	493b6610		cmp rsp, qword ptr [r14+0x10]
+	main.go:22	0xcecdd84	0f8641010000		jbe 0xcecdecb
+	main.go:22	0xcecdd8a	55			push rbp
+	main.go:22	0xcecdd8b	4889e5			mov rbp, rsp
+	main.go:22	0xcecdd8e	4883ec58		sub rsp, 0x58
+	main.go:24	0xcecdd92	90			nop
+	proc.go:5248	0xcecdd93	e848e3fcff		call $runtime.breakpoint
+	proc.go:5248	0xcecdd98	450f57ff		xorps xmm15, xmm15
+	proc.go:5248	0xcecdd9c	654c8b342530000000	mov r14, qword ptr gs:[0x30]
+	main.go:12	0xcecdda5	488d0554020000		lea rax, ptr [rip+0x254]
+	main.go:12	0xcecddac	bb01000000		mov ebx, 0x1
+	main.go:12	0xcecddb1	b90a000000		mov ecx, 0xa
+	main.go:12	0xcecddb6	31ff			xor edi, edi
+	main.go:12	0xcecddb8	e84359fdff		call $strconv.ParseInt
+	main.go:25	0xcecddbd	440f117c2448		movups xmmword ptr [rsp+0x48], xmm15
+	main.go:20	0xcecddc3	488d0440		lea rax, ptr [rax+rax*2]
+	main.go:20	0xcecddc7	48d1e0			shl rax, 0x1
+	main.go:25	0xcecddca	e8f14ffcff		call $runtime.convT64
+	main.go:25	0xcecddcf	488d0d8a010300		lea rcx, ptr [rip+0x3018a]
+	main.go:25	0xcecddd6	48894c2448		mov qword ptr [rsp+0x48], rcx
+	main.go:25	0xcecdddb	4889442450		mov qword ptr [rsp+0x50], rax
+	print.go:314	0xcecdde0	488b1d61c60c00		mov rbx, qword ptr [os.Stdout]
+	print.go:314	0xcecdde7	488d05ba830400		lea rax, ptr [rip+0x483ba]
+	print.go:314	0xcecddee	bf01000000		mov edi, 0x1
+	print.go:314	0xcecddf3	4889fe			mov rsi, rdi
+	print.go:314	0xcecddf6	488d4c2448		lea rcx, ptr [rsp+0x48]
+	print.go:314	0xcecddfb	0f1f440000		nop dword ptr [rax+rax*1], eax
+	print.go:314	0xcecde00	e87bafffff		call $fmt.Fprintln
+	main.go:12	0xcecde05	488d05f4010000		lea rax, ptr [rip+0x1f4]
+	main.go:12	0xcecde0c	bb01000000		mov ebx, 0x1
+	main.go:12	0xcecde11	b90a000000		mov ecx, 0xa
+	main.go:12	0xcecde16	31ff			xor edi, edi
+	main.go:12	0xcecde18	e8e358fdff		call $strconv.ParseInt
+	main.go:26	0xcecde1d	440f117c2438		movups xmmword ptr [rsp+0x38], xmm15
+	main.go:20	0xcecde23	488d0440		lea rax, ptr [rax+rax*2]
+	main.go:20	0xcecde27	48d1e0			shl rax, 0x1
+	main.go:26	0xcecde2a	48d1e0			shl rax, 0x1
+	main.go:26	0xcecde2d	e88e4ffcff		call $runtime.convT64
+	main.go:26	0xcecde32	488d0d27010300		lea rcx, ptr [rip+0x30127]
+	main.go:26	0xcecde39	48894c2438		mov qword ptr [rsp+0x38], rcx
+	main.go:26	0xcecde3e	4889442440		mov qword ptr [rsp+0x40], rax
+	print.go:314	0xcecde43	488b1dfec50c00		mov rbx, qword ptr [os.Stdout]
+	print.go:314	0xcecde4a	488d0557830400		lea rax, ptr [rip+0x48357]
+	print.go:314	0xcecde51	bf01000000		mov edi, 0x1
+	print.go:314	0xcecde56	4889fe			mov rsi, rdi
+	print.go:314	0xcecde59	488d4c2438		lea rcx, ptr [rsp+0x38]
+	print.go:314	0xcecde5e	6690			data16 nop
+	print.go:314	0xcecde60	e81bafffff		call $fmt.Fprintln
+	main.go:20	0xcecde65	90			nop
+	main.go:12	0xcecde66	488d0593010000		lea rax, ptr [rip+0x193]
+	main.go:12	0xcecde6d	bb01000000		mov ebx, 0x1
+	main.go:12	0xcecde72	b90a000000		mov ecx, 0xa
+	main.go:12	0xcecde77	31ff			xor edi, edi
+	main.go:12	0xcecde79	e88258fdff		call $strconv.ParseInt
+	main.go:27	0xcecde7e	440f117c2428		movups xmmword ptr [rsp+0x28], xmm15
+	main.go:27	0xcecde84	488d04c0		lea rax, ptr [rax+rax*8]
+	main.go:27	0xcecde88	48d1e0			shl rax, 0x1
+	main.go:27	0xcecde8b	e8304ffcff		call $runtime.convT64
+	main.go:27	0xcecde90	488d0dc9000300		lea rcx, ptr [rip+0x300c9]
+	main.go:27	0xcecde97	48894c2428		mov qword ptr [rsp+0x28], rcx
+	main.go:27	0xcecde9c	4889442430		mov qword ptr [rsp+0x30], rax
+	print.go:314	0xcecdea1	488b1da0c50c00		mov rbx, qword ptr [os.Stdout]
+	print.go:314	0xcecdea8	488d05f9820400		lea rax, ptr [rip+0x482f9]
+	print.go:314	0xcecdeaf	488d4c2428		lea rcx, ptr [rsp+0x28]
+	print.go:314	0xcecdeb4	bf01000000		mov edi, 0x1
+	print.go:314	0xcecdeb9	4889fe			mov rsi, rdi
+	print.go:314	0xcecdebc	0f1f4000		nop dword ptr [rax], eax
+	print.go:314	0xcecdec0	e8bbaeffff		call $fmt.Fprintln
+	main.go:28	0xcecdec5	4883c458		add rsp, 0x58
+	main.go:28	0xcecdec9	5d			pop rbp
+	main.go:28	0xcecdeca	c3			ret
+	main.go:22	0xcecdecb	e870e4fcff		call $runtime.morestack_noctxt
+	main.go:22	0xcecded0	e9abfeffff		jmp $main.main
+(dlv) exit
