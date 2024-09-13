@@ -1,0 +1,125 @@
+(dlv) continue
+> [unrecovered-panic] runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (hits goroutine(32):1 total:1) (PC: 0x426e744)
+Warning: debugging optimized function
+	runtime.curg._panic.arg: interface {}(string) "runtime error: invalid memory address or nil pointer dereference"
+  1258:	// fatalpanic implements an unrecoverable panic. It is like fatalthrow, except
+  1259:	// that if msgs != nil, fatalpanic also prints panic messages and decrements
+  1260:	// runningPanicDefers once main is blocked from exiting.
+  1261:	//
+  1262:	//go:nosplit
+=>1263:	func fatalpanic(msgs *_panic) {
+  1264:		pc := getcallerpc()
+  1265:		sp := getcallersp()
+  1266:		gp := getg()
+  1267:		var docrash bool
+  1268:		// Switch to the system stack to avoid any stack growth, which
+(dlv) stack
+ 0  0x000000000426e744 in [1mruntime.fatalpanic[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:1263[0m
+ 1  0x00000000042a624f in [1mruntime.gopanic[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:804[0m
+ 2  0x000000000434c03e in [1mtesting.tRunner.func1.2[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/testing/[1mtesting.go:1632[0m
+ 3  0x000000000434b5e9 in [1mtesting.tRunner.func1[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/testing/[1mtesting.go:1635[0m
+ 4  0x00000000042a6216 in [1mruntime.gopanic[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:785[0m
+ 5  0x000000000426cdbe in [1mruntime.panicmem[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mpanic.go:262[0m
+ 6  0x00000000042a7ee5 in [1mruntime.sigpanic[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1msignal_unix.go:900[0m
+ 7  0x00000000043bda2c in [1mgithub.com/derekparker/trie.(*Trie).Remove[0m
+    at ./[1mtrie.go:113[0m
+ 8  0x00000000043c4a6e in [1mgithub.com/derekparker/trie.TestRemoveNonExistingKey[0m
+    at ./[1mtrie_test.go:369[0m
+ 9  0x000000000434ae9a in [1mtesting.tRunner[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/testing/[1mtesting.go:1690[0m
+10  0x000000000434cb93 in [1mtesting.(*T).Run.gowrap1[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/testing/[1mtesting.go:1743[0m
+11  0x00000000042ae121 in [1mruntime.goexit[0m
+    at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1masm_amd64.s:1700[0m
+(dlv) break ./trie.go:113
+Breakpoint 1 set at 0x43bda24 for github.com/derekparker/trie.(*Trie).Remove() ./trie.go:113
+(dlv) r
+Process restarted with PID 48013
+(dlv) c
+> [Breakpoint 1] github.com/derekparker/trie.(*Trie).Remove() ./trie.go:113 (hits goroutine(23):1 total:1) (PC: 0x62dca24)
+   108:			node = findNode(t.Root(), []rune(key))
+   109:		)
+   110:		t.mu.Lock()
+   111:	
+   112:		t.size--
+=> 113:		for n := node.Parent(); n != nil; n = n.Parent() {
+   114:			i++
+   115:			if len(n.Children()) > 1 {
+   116:				r := rs[len(rs)-i]
+   117:				n.RemoveChild(r)
+   118:				break
+(dlv) print node
+("*github.com/derekparker/trie.Node")(0xc000139500)
+*github.com/derekparker/trie.Node {
+	val: 108,
+	path: "",
+	term: false,
+	depth: 8,
+	meta: interface {} nil,
+	mask: 2048,
+	parent: *github.com/derekparker/trie.Node {
+		val: 108,
+		path: "",
+		term: false,
+		depth: 7,
+		meta: interface {} nil,
+		mask: 2048,
+		parent: *(*"github.com/derekparker/trie.Node")(0xc000139440),
+		children: map[int32]*github.com/derekparker/trie.Node [...],
+		termCount: 1,},
+	children: map[int32]*github.com/derekparker/trie.Node [
+		0: *(*"github.com/derekparker/trie.Node")(0xc000139560), 
+	],
+	termCount: 1,}
+(dlv) continue
+> [Breakpoint 1] github.com/derekparker/trie.(*Trie).Remove() ./trie.go:113 (hits goroutine(44):1 total:2) (PC: 0x62dca24)
+   108:			node = findNode(t.Root(), []rune(key))
+   109:		)
+   110:		t.mu.Lock()
+   111:	
+   112:		t.size--
+=> 113:		for n := node.Parent(); n != nil; n = n.Parent() {
+   114:			i++
+   115:			if len(n.Children()) > 1 {
+   116:				r := rs[len(rs)-i]
+   117:				n.RemoveChild(r)
+   118:				break
+(dlv) print node
+*github.com/derekparker/trie.Node nil
+(dlv) r
+Process restarted with PID 22336
+(dlv) breakpoints
+Breakpoint runtime-fatal-throw (enabled) at 0xbf954c4,0xbf5d264,0xbf74cce for (multiple functions)() <multiple locations>:0 (0)
+Breakpoint unrecovered-panic (enabled) at 0xbf5d744 for runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (0)
+	print runtime.curg._panic.arg
+Breakpoint 1 (enabled) at 0xc0aca24 for github.com/derekparker/trie.(*Trie).Remove() ./trie.go:113 (0)
+(dlv) cond 1 node == nil
+(dlv) breakpoints
+Breakpoint runtime-fatal-throw (enabled) at 0xbf5d264,0xbf74cce,0xbf954c4 for (multiple functions)() <multiple locations>:0 (0)
+Breakpoint unrecovered-panic (enabled) at 0xbf5d744 for runtime.fatalpanic() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/panic.go:1263 (0)
+	print runtime.curg._panic.arg
+Breakpoint 1 (enabled) at 0xc0aca24 for github.com/derekparker/trie.(*Trie).Remove() ./trie.go:113 (0)
+	cond node == nil
+(dlv) continue
+> [Breakpoint 1] github.com/derekparker/trie.(*Trie).Remove() ./trie.go:113 (hits goroutine(44):1 total:1) (PC: 0xc0aca24)
+   108:			node = findNode(t.Root(), []rune(key))
+   109:		)
+   110:		t.mu.Lock()
+   111:	
+   112:		t.size--
+=> 113:		for n := node.Parent(); n != nil; n = n.Parent() {
+   114:			i++
+   115:			if len(n.Children()) > 1 {
+   116:				r := rs[len(rs)-i]
+   117:				n.RemoveChild(r)
+   118:				break
+(dlv) print node
+*github.com/derekparker/trie.Node nil
+(dlv) exit
