@@ -1,0 +1,69 @@
+(dlv) continue main.main
+Breakpoint 1 set at 0x777bf13 for main.main() ./last-character.go:8
+> [Breakpoint 1] main.main() ./last-character.go:8 (hits goroutine(1):1 total:1) (PC: 0x777bf13)
+     3:	import (
+     4:		"fmt"
+     5:		"os"
+     6:	)
+     7:
+=>   8:	func main() {
+     9:		fmt.Println("Hello Gophers! Pass me a word and I will print the last character!")
+    10:
+    11:		if len(os.Args) < 2 {
+    12:			fmt.Println("You must supply an argument to this program")
+    13:			os.Exit(1)
+(dlv) next
+> main.main() ./last-character.go:9 (PC: 0x777bf1a)
+     4:		"fmt"
+     5:		"os"
+     6:	)
+     7:
+     8:	func main() {
+=>   9:		fmt.Println("Hello Gophers! Pass me a word and I will print the last character!")
+    10:
+    11:		if len(os.Args) < 2 {
+    12:			fmt.Println("You must supply an argument to this program")
+    13:			os.Exit(1)
+    14:		}
+(dlv)
+> main.main() ./last-character.go:11 (PC: 0x777bf96)
+     6:	)
+     7:
+     8:	func main() {
+     9:		fmt.Println("Hello Gophers! Pass me a word and I will print the last character!")
+    10:
+=>  11:		if len(os.Args) < 2 {
+    12:			fmt.Println("You must supply an argument to this program")
+    13:			os.Exit(1)
+    14:		}
+    15:
+    16:		arg := os.Args[1]
+(dlv)
+> main.main() ./last-character.go:16 (PC: 0x777c033)
+    11:		if len(os.Args) < 2 {
+    12:			fmt.Println("You must supply an argument to this program")
+    13:			os.Exit(1)
+    14:		}
+    15:
+=>  16:		arg := os.Args[1]
+    17:
+    18:		fmt.Printf("The last character in that word is: %c\n", arg[len(arg)-1])
+    19:	}
+(dlv)
+> main.main() ./last-character.go:18 (PC: 0x777c05e)
+    13:			os.Exit(1)
+    14:		}
+    15:
+    16:		arg := os.Args[1]
+    17:
+=>  18:		fmt.Printf("The last character in that word is: %c\n", arg[len(arg)-1])
+    19:	}
+(dlv) help dump
+Creates a core dump from the current process state
+
+	dump <output file>
+
+The core dump is always written in ELF, even on systems (windows, macOS) where this is not customary. For environments other than linux/amd64 threads and registers are dumped in a format that only Delve can read back.
+
+(dlv) dump example.core
+Dumping memory 4327882752 / 4327882752...
