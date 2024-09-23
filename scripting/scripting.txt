@@ -1,0 +1,109 @@
+(dlv) source find_array_elem.star
+(dlv) help find_array
+Calls pred for each element of the array or slice 'arr' returns the index of the first element for which pred returns true.
+
+	find_array <arr> <pred>
+
+Example use (find the first element of slice 's2' with field A equal to 5):
+
+	find_array "s2", lambda x: x.A == 5
+
+(dlv) break m65 main.go:65
+Breakpoint m65 set at 0x367f062 for main.consumeValues() ./main.go:65
+(dlv) cond m65 len(buf) == 100
+(dlv) continue
+> [m65] main.consumeValues() ./main.go:65 (hits goroutine(20):1 total:1) (PC: 0x367f062)
+    60:				return
+    61:			case pkt := <-ch:
+    62:				// Store data in our buffer.
+    63:				buf = append(buf, pkt)
+    64:	
+=>  65:				fmt.Println("got value:", binary.LittleEndian.Uint64(pkt.val))
+    66:	
+    67:				if bytes.Contains(pkt.val, []byte{0xcc, 0xff}) {
+    68:					fmt.Printf("got invalid packet with ID: %d\n", pkt.id)
+    69:				}
+    70:			}
+(dlv) find_array "buf", lambda x: x.id == 8943089707359351515
+(dlv) print pkt.id
+3721726367351747794
+(dlv) find_array "buf", lambda x: x.id == 3721726367351747794
+found at index:  99
+(dlv) source switch_to_goroutine_running.star
+(dlv) goroutines
+  Goroutine 1 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/sema.go:71 sync.runtime_Semacquire (0x361e4e5) [semacquire]
+  Goroutine 2 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:425 runtime.gopark (0x361d4bc) [force gc (idle)]
+  Goroutine 3 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:425 runtime.gopark (0x361d4bc) [GC sweep wait]
+  Goroutine 4 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:425 runtime.gopark (0x361d4bc) [GC scavenge wait]
+  Goroutine 5 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:425 runtime.gopark (0x361d4bc) [finalizer wait]
+  Goroutine 6 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:425 runtime.gopark (0x361d4bc) [select]
+  Goroutine 17 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/sigqueue.go:149 os/signal.signal_recv (0x361ea45)
+  Goroutine 18 - User: ./main.go:87 main.main.func1 (0x367f9c5) [chan receive]
+  Goroutine 19 - User: /usr/local/Cellar/go/1.23.0/libexec/src/runtime/time.go:285 time.Sleep (0x3620715) [sleep]
+* Goroutine 20 - User: ./main.go:65 main.consumeValues (0x367f062) (thread 53573668)
+[10 goroutines]
+(dlv) list
+> [m65] main.consumeValues() ./main.go:65 (hits goroutine(20):1 total:1) (PC: 0x367f062)
+    60:				return
+    61:			case pkt := <-ch:
+    62:				// Store data in our buffer.
+    63:				buf = append(buf, pkt)
+    64:	
+=>  65:				fmt.Println("got value:", binary.LittleEndian.Uint64(pkt.val))
+    66:	
+    67:				if bytes.Contains(pkt.val, []byte{0xcc, 0xff}) {
+    68:					fmt.Printf("got invalid packet with ID: %d\n", pkt.id)
+    69:				}
+    70:			}
+(dlv) switch_to_g_running "main.Producevalues"
+could not find G
+(dlv) switch_to_g_running "main.produceValues"
+Switched from 20 to 19 (thread 53573668)
+(dlv) list
+> runtime.gopark() /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:425 (PC: 0x361d4bc)
+Warning: debugging optimized function
+   420:		mp.waitTraceBlockReason = traceReason
+   421:		mp.waitTraceSkip = traceskip
+   422:		releasem(mp)
+   423:		// can't do anything that might move the G between Ms here.
+   424:		mcall(park_m)
+=> 425:	}
+   426:	
+   427:	// Puts the current goroutine into a waiting state and unlocks the lock.
+   428:	// The goroutine can be made runnable again by calling goready(gp).
+   429:	func goparkunlock(lock *mutex, reason waitReason, traceReason traceBlockReason, traceskip int) {
+   430:		gopark(parkunlock_c, unsafe.Pointer(lock), reason, traceReason, traceskip)
+(dlv) bt
+0  0x000000000361d4bc in [1mruntime.gopark[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mproc.go:425[0m
+1  0x0000000003620715 in [1mtime.Sleep[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1mtime.go:285[0m
+2  0x000000000367ec9f in [1mmain.produceValues[0m
+   at ./[1mmain.go:46[0m
+3  0x000000000367f8ef in [1mmain.main.gowrap2[0m
+   at ./[1mmain.go:102[0m
+4  0x00000000036242e1 in [1mruntime.goexit[0m
+   at /usr/local/Cellar/go/1.23.0/libexec/src/runtime/[1masm_amd64.s:1700[0m
+(dlv) source goroutine_start_line.star
+(dlv) gsl
+1 	 /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:147 	 func main() {
+2 	 /usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go:328 	 func forcegchelper() {
+3 	 /usr/local/Cellar/go/1.23.0/libexec/src/runtime/mgc.go:203 	 go bgsweep(c)
+4 	 /usr/local/Cellar/go/1.23.0/libexec/src/runtime/mgc.go:204 	 go bgscavenge(c)
+5 	 /usr/local/Cellar/go/1.23.0/libexec/src/runtime/mfinal.go:176 	 func runfinq() {
+6 	 /usr/local/Cellar/go/1.23.0/libexec/src/runtime/signal_unix.go:1043 	 go func() {
+17 	 /usr/local/Cellar/go/1.23.0/libexec/src/os/signal/signal_unix.go:21 	 func loop() {
+18 	 /Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/scripting/main.go:85 	 go func(sch <-chan os.Signal, cncl func()) {
+19 	 /Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/scripting/main.go:22 	 func produceValues(ctx context.Context, wg *sync.WaitGroup, ch chan<- packet) {
+20 	 /Users/weitecklee/coding/ardanlabs/ultimate_go_debugging/scripting/main.go:50 	 func consumeValues(ctx context.Context, wg *sync.WaitGroup, ch <-chan packet) {
+(dlv) source -
+>>> goroutines()rpc2.ListGoroutinesOut{Goroutines:[]*api.Goroutine{(*api.Goroutine)(0xc0003376c0), (*api.Goroutine)(0xc000337860), (*api.Goroutine)(0xc000337a00), (*api.Goroutine)(0xc000337ba0), (*api.Goroutine)(0xc000337d40), (*api.Goroutine)(0xc000f6a000), (*api.Goroutine)(0xc000f6a1a0), (*api.Goroutine)(0xc000f6a340), (*api.Goroutine)(0xc000f6a4e0), (*api.Goroutine)(0xc000f6a680)}, Nextg:-1, Groups:[]api.GoroutineGroup(nil), TooManyGroups:false}
+>>> goroutines().Goroutines[]*api.Goroutine{(*api.Goroutine)(0xc000e59040), (*api.Goroutine)(0xc000e591e0), (*api.Goroutine)(0xc000e59380), (*api.Goroutine)(0xc000e59520), (*api.Goroutine)(0xc000e596c0), (*api.Goroutine)(0xc000e59860), (*api.Goroutine)(0xc000e59a00), (*api.Goroutine)(0xc000e59ba0), (*api.Goroutine)(0xc000e59d40), (*api.Goroutine)(0xc00107e000)}
+>>> goroutines().Goroutines[0]api.Goroutine{ID:1, CurrentLoc:api.Location{PC:0x361d4bc, File:"/usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go", Line:425, Function:(*api.Function)(0xc001343bc0), PCs:[]uint64(nil), PCPids:[]int(nil)}, UserCurrentLoc:api.Location{PC:0x361e4e5, File:"/usr/local/Cellar/go/1.23.0/libexec/src/runtime/sema.go", Line:71, Function:(*api.Function)(0xc001343bf0), PCs:[]uint64(nil), PCPids:[]int(nil)}, GoStatementLoc:api.Location{PC:0x3626b5f, File:"<autogenerated>", Line:1, Function:(*api.Function)(0xc001343c20), PCs:[]uint64(nil), PCPids:[]int(nil)}, StartLoc:api.Location{PC:0x35e8a40, File:"/usr/local/Cellar/go/1.23.0/libexec/src/runtime/proc.go", Line:147, Function:(*api.Function)(0xc001343c50), PCs:[]uint64(nil), PCPids:[]int(nil)}, ThreadID:0, Status:0x4, WaitSince:0, WaitReason:18, Unreadable:"", Labels:map[string]string(nil)}
+>>> goroutines().Goroutines[0].ID1
+>>> goroutines().Goroutines[0].CurrentLoc.PC56743100
+>>> def command_foo():...   print(goroutines().Goroutines)... >>> foo()>>> command_foo()[]*api.Goroutine{(*api.Goroutine)(0xc000a2f040), (*api.Goroutine)(0xc000a2f1e0), (*api.Goroutine)(0xc000a2f380), (*api.Goroutine)(0xc000a2f520), (*api.Goroutine)(0xc000a2f6c0), (*api.Goroutine)(0xc000a2f860), (*api.Goroutine)(0xc000a2fa00), (*api.Goroutine)(0xc000a2fba0), (*api.Goroutine)(0xc000a2fd40), (*api.Goroutine)(0xc000a7e000)}
+>>> exit
+(dlv) foo
+[]*api.Goroutine{(*api.Goroutine)(0xc0010f3a00), (*api.Goroutine)(0xc0010f3ba0), (*api.Goroutine)(0xc0010f3d40), (*api.Goroutine)(0xc000e46000), (*api.Goroutine)(0xc000e461a0), (*api.Goroutine)(0xc000e46340), (*api.Goroutine)(0xc000e464e0), (*api.Goroutine)(0xc000e46680), (*api.Goroutine)(0xc000e46820), (*api.Goroutine)(0xc000e469c0)}
+(dlv) exit
